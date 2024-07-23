@@ -5,7 +5,9 @@ export default {
     data() {
       return {
         username: 'admin',
-        password: '123456'
+        password: '123456',
+        vcode:'',
+        vImgCode:''
     }
   },
   methods:{
@@ -15,7 +17,7 @@ export default {
       var params = {}
       params.username=this.username;
       params.password=this.password;
-
+      params.vcode=this.vcode;
       console.log(params);
 
       //将用户名和密码发送给后台程序验证，返回结果，判断是否登陆成功
@@ -25,7 +27,9 @@ export default {
           var data = result.data;
           if (data.code === 200){
             //把后台传回的userId保存在页面缓存中
-            sessionStorage.setItem('userId',data.data);
+            sessionStorage.setItem('userId',data.data.userId);
+            //存放token
+            sessionStorage.setItem("token",data.data.token);
 
             //页面跳转
             //如果登陆成功则跳转页面，否则提示登录失败
@@ -39,7 +43,17 @@ export default {
         .catch(error=>{
           console.log(error);
         })
+    },
+    getVcode(){
+      this.$axios.get('/user/vcode')
+        .then(res=>{
+          var data = res.data;
+          this.vImgCode = data.data;
+        })
     }
+  },
+  mounted() {
+      this.getVcode();
   }
 }
 </script>
@@ -61,19 +75,18 @@ export default {
           <el-input placeholder="密码" prefix-icon="el-icon-magic-stick" v-model="password" show-password></el-input>
         </el-form-item>
         <el-form-item>
+          <el-input v-model="vcode" placeholder="请输入验证码" style="width: 200px;height: 40px"></el-input>
+          <img class="vcode" :src="vImgCode" @click="getVcode"/>
+          <el-link :underline="false" :disabled="true">--------------------------------------看不清？点击刷新</el-link>
+        </el-form-item>
+        <el-form-item>
 <!--          v-on:触发事件，click事件名称，login事件方法-->
           <el-button type="primary" style="width: 100%" icon="el-icon-user" v-on:click="login">
             登录
           </el-button>
         </el-form-item>
-        <el-form-item>
-          <el-button style="width: 100%" icon="el-icon-circle-plus-outline" @click="register">
-            注册
-          </el-button>
-        </el-form-item>
       </el-form>
       <h1></h1>
-      <el-link type="primary" href="https://www.icourse163.org/">忘记密码？在这里找回</el-link>
     </el-card>
   </div>
 </template>
@@ -101,5 +114,9 @@ export default {
 }
   h2{
     text-align: center;
+  }
+  .vcode{
+    height: 40px;
+    vertical-align: bottom;
   }
 </style>

@@ -25,6 +25,7 @@ export default new Router({
       path:'/sys',
       name:'Index',
       component:Index,
+      redirect:'/sys/userList',
       children:[
         {
           // 子路由的路径上不加"/"

@@ -19,6 +19,9 @@ axios.interceptors.request.use(config =>{
 
   //给请求头设置请求参数的数据格式为json
   config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+  if(sessionStorage.getItem('token')!=null){
+    config.headers['Authorization']=sessionStorage.getItem('token');
+  }
   return config;
 },error => Promise.reject())
 
@@ -36,3 +39,10 @@ new Vue({
   components: { App },//绑定的组件，默认为App.vue
   template: '<App/>'
 })
+
+//头像上传思路
+//1.前端页面添加一个头像上传的组件，当上传图片后，向后台发送请求
+//2.后台接收到头像上传请求后，将前端上传的图片参数保存在本地服务器目录下
+//3.在后台设置静态资源映射，将本地服务器的图片映射为http协议的url路径
+//4.将映射的http协议的url路经返给前端,前端将url保存到对象字段中
+//5.当添加用户对话框点击确定按钮保存时,将图片的url保存到数据库中
